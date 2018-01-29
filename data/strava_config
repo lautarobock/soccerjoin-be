@@ -1,0 +1,6 @@
+
+{
+    "client_id"       : "22846",
+    "client_secret"   : "c06a0e6204ee08ce943656ff946af4b331aa8f5b",
+    "redirect_uri"    : "https://soccerjoin.herokuapp.com/login/strava"
+}
