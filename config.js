@@ -7,6 +7,7 @@ exports.configure = function (app) {
     mongoose.connect(MONGODB);
     secure(app);
     require('./routes/users').config(app, SECRET);
+    require('./routes/matches').config(app);
     app.get('/api/test', (req, res, next) => {
         res.send({ text: 'Hola como va' });
     });

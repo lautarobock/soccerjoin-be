@@ -19,3 +19,11 @@ exports.User = mongoose.model('User', new mongoose.Schema({
         access_token: String
     }
 }));
+
+exports.Match = mongoose.model('Match', new mongoose.Schema({
+    name: String,
+    owner: { type: Schema.Types.ObjectId, ref: 'User' },
+    strava: {
+        id: Number
+    }
+}));
