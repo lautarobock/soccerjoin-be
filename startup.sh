@@ -1,0 +1,1 @@
+DEBUG=soccerjoin-be:* nodemon ./bin/www

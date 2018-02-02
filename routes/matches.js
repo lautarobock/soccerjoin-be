@@ -11,4 +11,11 @@ exports.config = function(app) {
             .then(matches => res.send(matches))
             .catch(e => next(e))
     });
+
+    app.post('/api/matches', (req, res, next) => {
+        req.body.owner = req.user.sub;
+        req.body.creationDate = new Date();
+        req.body.modificationDate = new Date();
+        model.Match.create(req.body).then(match => res.send(match)).catch(e => next(e));
+    });
 }

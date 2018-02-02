@@ -24,6 +24,25 @@ exports.Match = mongoose.model('Match', new mongoose.Schema({
     name: String,
     owner: { type: Schema.Types.ObjectId, ref: 'User' },
     strava: {
-        id: Number
+        id: Number,
+        external_id: String
+    },
+    distance: Number,
+    movingTime: Number,
+    elapsedTime: Number,
+    startDate: Date,
+    averageSpeed: Number,
+    maxSpeed: Number,
+    averageHeartRate: Number,
+    maxHeartRate: Number,
+    calories: Number,
+    creationDate: Date,
+    modificationDate: Date,
+    center: {lat: Number, lng: Number},
+    streams: {
+        time: [Number],
+        distance: [Number],
+        heartRate: [Number],
+        latlng: [{lat: Number, lng: Number}]
     }
 }));
