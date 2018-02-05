@@ -8,9 +8,18 @@ exports.config = function(app) {
             filter.owner = req.query.owner;
         }
         model.Match.find(filter)
+            .populate('owner')
+            .sort('-startDate')
             .then(matches => res.send(matches))
             .catch(e => next(e))
     });
+
+    app.get('/api/matches/:id', (req, res, next) => {
+        model.Match.findById(req.params.id)
+            .populate('owner')
+            .then(match => res.send(match))
+            .catch(err => next(err));
+    })
 
     app.post('/api/matches', (req, res, next) => {
         req.body.owner = req.user.sub;
