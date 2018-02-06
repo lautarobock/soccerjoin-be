@@ -1,6 +1,6 @@
 var model = require('../domain/model');
 
-exports.config = function(app) {
+exports.config = function (app) {
 
     app.get('/api/matches', (req, res, next) => {
         let filter = {};
@@ -28,25 +28,75 @@ exports.config = function(app) {
         model.Match.create(req.body).then(match => res.send(match)).catch(e => next(e));
     });
 
+    //**** Like *****
+
     app.post('/api/matches/:id/like', (req, res, next) => {
         model.User.findById(req.user.sub).then(user => {
-            return model.Match.findByIdAndUpdate(req.params.id, {$push: {
-                likes: {
-                    date: new Date(),
-                    name: `${user.name} ${user.lastName}`,
-                    pictureUrl: user.pictureUrl,
-                    owner: user
+            return model.Match.findByIdAndUpdate(req.params.id, {
+                $push: {
+                    likes: {
+                        date: new Date(),
+                        name: `${user.name} ${user.lastName}`,
+                        pictureUrl: user.pictureUrl,
+                        owner: user
+                    }
                 }
-            }}).then(() => res.status(201).send());
+            }).then(() => res.status(201).send());
         })
-        .catch(err => next(err));
+            .catch(err => next(err));
     });
 
     app.delete('/api/matches/:id/like', (req, res, next) => {
-        return model.Match.findByIdAndUpdate(req.params.id, {$pull: {
-            likes: {owner: req.user.sub}
-        }})
-        .then(() => res.status(204).send())
-        .catch(err => next(err));
+        return model.Match.findByIdAndUpdate(req.params.id, {
+            $pull: {
+                likes: { owner: req.user.sub }
+            }
+        })
+            .then(() => res.status(204).send())
+            .catch(err => next(err));
+    });
+
+    //**** Join *****
+
+    app.post('/api/matches/:id/join/:with', (req, res, next) => {
+        Promise.all([
+            model.Match.findById(req.params.id).populate('join'),
+            model.Match.findById(req.params.with).populate('join')
+        ]).then(matches => {
+            const [m1, m2] = matches;
+            if (m1.join && !m2.join) {
+                // m1 <= m2
+                m2.join = m1.join;
+                return Promise.all([
+                    model.Join.findByIdAndUpdate(m1.join._id, { $push: { matches: m2 } }, { new: true }),
+                    m2.save()
+                ]).then(responses => res.send(responses[0]));
+            } else if (!m1.join && m2.join) {
+                // m2 <= m1
+                m1.join = m2.join;
+                return Promise.all([
+                    model.Join.findByIdAndUpdate(m2.join._id, { $push: { matches: m1 } }, { new: true }),
+                    m1.save()
+                ]).then(responses => res.send(responses[0]));
+            } else if (m1.join && m2.join && m1.join._id.toString() !== m2.join._id.toString()) {
+                // merge joins (remove join of m2 and join to the m2)
+                return model.Join.findByIdAndRemove(m2.join._id).populate('matches').then(removedJoin => {
+                    removedJoin.matches.forEach(match => match.join = m1.join);
+                    const promises = removedJoin.matches.map(match => match.save());
+                    promises.push(model.Join.findByIdAndUpdate(m1.join._id, { $push: { matches: { $each: removedJoin.matches } } }, { new: true }));
+                    return Promise.all(promises).then(responses => res.send(responses[responses.length - 1]));
+                });
+            } else if (!m1.join && !m2.join) {
+                // m1 <= m2 (new join)
+                return model.Join.create({ matches: [m1._id, m2._id] }).then(join => {
+                    m1.join = join;
+                    m2.join = join;
+                    return Promise.all([m1.save(), m2.save()]).then(() => res.send(join));
+                });
+            } else {
+                res.status(409).send('Already in the same Join');
+            }
+        })
+            .catch(err => next(err));
     });
 }

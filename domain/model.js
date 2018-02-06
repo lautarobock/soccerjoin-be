@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-exports.User = mongoose.model('User', new mongoose.Schema({
+exports.User = mongoose.model('User', new Schema({
     name: String,
     lastName: String,
     sex: String,
@@ -20,7 +20,7 @@ exports.User = mongoose.model('User', new mongoose.Schema({
     }
 }));
 
-exports.Match = mongoose.model('Match', new mongoose.Schema({
+exports.Match = mongoose.model('Match', new Schema({
     name: String,
     owner: { type: Schema.Types.ObjectId, ref: 'User' },
     likes: [{
@@ -50,5 +50,10 @@ exports.Match = mongoose.model('Match', new mongoose.Schema({
         distance: [Number],
         heartRate: [Number],
         latlng: [{lat: Number, lng: Number}]
-    }
+    },
+    join: { type: Schema.Types.ObjectId, ref: 'Join' }
+}));
+
+exports.Join = mongoose.model('Join', new Schema({
+    matches: [{ type: Schema.Types.ObjectId, ref: 'Match' }]
 }));
