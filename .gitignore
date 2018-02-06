@@ -1,3 +1,4 @@
 node_modules
 uploads
 startup.sh
+.vscode/launch.json
