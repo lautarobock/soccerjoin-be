@@ -1,10 +1,9 @@
 var mongoose = require('mongoose');
 
-const MONGODB = 'mongodb://soccerjoin:soccer1234@ds111598.mlab.com:11598/soccerjoin';
 const SECRET = '04c5fcdc-5c83-4b77-8891-8b3cbce25f1c';
 
 exports.configure = function (app) {
-    mongoose.connect(MONGODB);
+    mongoose.connect(process.env.MONGOLAB_URI);
     secure(app);
     require('./routes/users').config(app, SECRET);
     require('./routes/matches').config(app);
