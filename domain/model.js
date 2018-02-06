@@ -23,6 +23,12 @@ exports.User = mongoose.model('User', new mongoose.Schema({
 exports.Match = mongoose.model('Match', new mongoose.Schema({
     name: String,
     owner: { type: Schema.Types.ObjectId, ref: 'User' },
+    likes: [{
+        date: Date,
+        name: String,
+        pictureUrl: String,
+        owner: { type: Schema.Types.ObjectId, ref: 'User' }
+    }],
     strava: {
         id: Number,
         external_id: String

@@ -27,4 +27,26 @@ exports.config = function(app) {
         req.body.modificationDate = new Date();
         model.Match.create(req.body).then(match => res.send(match)).catch(e => next(e));
     });
+
+    app.post('/api/matches/:id/like', (req, res, next) => {
+        model.User.findById(req.user.sub).then(user => {
+            return model.Match.findByIdAndUpdate(req.params.id, {$push: {
+                likes: {
+                    date: new Date(),
+                    name: `${user.name} ${user.lastName}`,
+                    pictureUrl: user.pictureUrl,
+                    owner: user
+                }
+            }}).then(() => res.status(201).send());
+        })
+        .catch(err => next(err));
+    });
+
+    app.delete('/api/matches/:id/like', (req, res, next) => {
+        return model.Match.findByIdAndUpdate(req.params.id, {$pull: {
+            likes: {owner: req.user.sub}
+        }})
+        .then(() => res.status(204).send())
+        .catch(err => next(err));
+    });
 }
