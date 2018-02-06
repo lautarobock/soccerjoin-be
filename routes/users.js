@@ -25,7 +25,11 @@ exports.config = function (app, SECRET) {
                         access_token: req.body.access_token
                     }
                 })
-                .then(user => res.send(user));
+                .then(user => {
+                    let token = createJWT(user);
+                    token.user = user;
+                    res.send(token);
+                });
             }).catch(err => res.status(500).send());
         } else {
             res.status(409).send('Invalid type');
@@ -36,9 +40,13 @@ exports.config = function (app, SECRET) {
         if (req.query.type === 'strava') {
             strava.getAthlete(req.query.access_token).then(athlete => {
                 return model.User.findOne({'strava.id': athlete.id}).then(user => {
-                    let token = createJWT(user);
-                    token.user = user;
-                    res.send(token);
+                    if (user) {
+                        let token = createJWT(user);
+                        token.user = user;
+                        res.send(token);
+                    } else {
+                        res.status(404).send('user not found');
+                    }
                 }).catch(err => res.status(409).send(JSON.stringify(err)))
             }).catch(err => res.status(404).send(err));
         } else {
