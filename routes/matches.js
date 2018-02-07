@@ -16,6 +16,7 @@ exports.config = function (app) {
 
     app.get('/api/matches/:id', (req, res, next) => {
         model.Match.findById(req.params.id)
+            .populate('join')
             .populate('owner')
             .then(match => res.send(match))
             .catch(err => next(err));
