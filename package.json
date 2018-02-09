@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "bash ./bin/startup.sh"
+    "start": "bash ./startup.sh"
   },
   "dependencies": {
     "body-parser": "~1.18.2",

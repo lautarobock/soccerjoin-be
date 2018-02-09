@@ -51,7 +51,8 @@ exports.Match = mongoose.model('Match', new Schema({
         heartRate: [Number],
         latlng: [{lat: Number, lng: Number}]
     },
-    join: { type: Schema.Types.ObjectId, ref: 'Join' }
+    join: { type: Schema.Types.ObjectId, ref: 'Join' },
+    isPublic: {type: Boolean, default: false}
 }));
 
 exports.Join = mongoose.model('Join', new Schema({

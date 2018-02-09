@@ -20,7 +20,15 @@ exports.config = function (app) {
             .populate('owner')
             .then(match => res.send(match))
             .catch(err => next(err));
-    })
+    });
+
+    app.get('/public/matches/:id', (req, res, next) => {
+        model.Match.findById(req.params.id)
+            .populate('join')
+            .populate('owner')
+            .then(match => res.send(match))
+            .catch(err => next(err));
+    });
 
     app.post('/api/matches', (req, res, next) => {
         req.body.owner = req.user.sub;

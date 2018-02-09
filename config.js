@@ -22,7 +22,8 @@ function secure(app) {
             '/favicon.ico',
             '/robots.txt',
             '/api/users/token',
-            '/api/test'
+            '/api/test',
+            /\/public\/.*/,
         ]
     }));
 }
