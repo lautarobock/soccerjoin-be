@@ -3,7 +3,7 @@ var model = require('../domain/model');
 exports.config = function (app) {
 
     app.get('/api/matches', (req, res, next) => {
-        let filter = {};
+        let filter = {name: new RegExp(`.*${req.query.q || ''}.*`,'gi')};
         if (req.query.owner !== undefined && req.query.owner !== null && req.query.owner !== '') {
             filter.owner = req.query.owner;
         }
