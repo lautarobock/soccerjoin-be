@@ -41,6 +41,16 @@ exports.config = function (app) {
         }).catch(err => next(err));
     });
 
+    app.delete('/api/matches/:id', (req, res, next) => {
+        model.Match.findOneAndRemove({_id: req.params.id, owner: req.user.sub}, {$set: req.body}).then(match => {
+            if (!match) {
+                res.status(403).send('You dont have permission');
+            } else {
+                res.send(match);
+            }
+        }).catch(err => next(err));
+    });
+
     app.post('/api/matches', (req, res, next) => {
         req.body.owner = req.user.sub;
         req.body.creationDate = new Date();
