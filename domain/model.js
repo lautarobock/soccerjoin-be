@@ -52,7 +52,13 @@ exports.Match = mongoose.model('Match', new Schema({
         latlng: [{lat: Number, lng: Number}]
     },
     join: { type: Schema.Types.ObjectId, ref: 'Join' },
-    isPublic: {type: Boolean, default: false}
+    isPublic: {type: Boolean, default: false},
+    comments: [{
+        text: String,
+        owner: { type: Schema.Types.ObjectId, ref: 'User' },
+        creationDate: Date,
+        modificationDate: Date
+    }]
 }));
 
 exports.Join = mongoose.model('Join', new Schema({

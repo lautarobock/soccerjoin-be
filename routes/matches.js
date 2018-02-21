@@ -18,6 +18,7 @@ exports.config = function (app) {
         model.Match.findById(req.params.id)
             .populate('join')
             .populate('owner')
+            .populate('comments.owner')
             .then(match => res.send(match))
             .catch(err => next(err));
     });
@@ -84,6 +85,25 @@ exports.config = function (app) {
         })
             .then(() => res.status(204).send())
             .catch(err => next(err));
+    });
+
+    //**** Comments *****
+
+    app.post('/api/matches/:id/comments', (req, res, next) => {
+        const now = new Date();
+        return model.Match.findByIdAndUpdate(req.params.id, {
+            $push: {
+                comments: {
+                    creationDate: now,
+                    modificationDate: now,
+                    text: req.body.text,
+                    owner: req.user.sub
+                }
+            }
+        })
+        .populate('comments.owner')
+        .then(() => res.status(201).send())
+        .catch(err => next(err));
     });
 
     //**** Join *****
