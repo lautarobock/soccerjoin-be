@@ -106,6 +106,19 @@ exports.config = function (app) {
         .catch(err => next(err));
     });
 
+    app.delete('/api/matches/:id/comments/:comment', (req, res, next) => {
+        const now = new Date();
+        return model.Match.findByIdAndUpdate(req.params.id, {
+            $pull: {
+                comments: {
+                    _id: req.params.comment
+                }
+            }
+        })
+        .then(() => res.status(204).send())
+        .catch(err => next(err));
+    });
+
     //**** Join *****
 
     app.post('/api/matches/:id/join/:with', (req, res, next) => {
