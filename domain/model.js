@@ -17,6 +17,10 @@ exports.User = mongoose.model('User', new Schema({
     strava: {
         id: Number,
         access_token: String
+    },
+    endomondo: {
+        id: Number,
+        authToken: String
     }
 }));
 

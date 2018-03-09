@@ -1,5 +1,6 @@
 var model = require('../domain/model');
 var strava = require('../services/strava');
+const endomondo = require('../services/endomondo');
 var jwt = require('jwt-simple');
 
 exports.config = function (app, SECRET) {
@@ -31,6 +32,29 @@ exports.config = function (app, SECRET) {
                     res.send(token);
                 });
             }).catch(err => res.status(500).send());
+        } else if (req.query.type === 'endomondo') {
+            endomondo.getAccount(req.body.authToken).then(account => {
+                return model.User.create({
+                    name: account.first_name,
+                    lastName: account.last_name,
+                    sex: account.sex === 'MALE' ? 'Male' : 'Female',
+                    pictureUrl: account.picture_url,
+                    email: account.email,
+                    country: account.country,
+                    preferences: {
+                        measurement: account.units
+                    },
+                    endomondo: {
+                        id: account.id,
+                        authToken: req.body.authToken
+                    }
+                })
+                .then(user => {
+                    let token = createJWT(user);
+                    token.user = user;
+                    res.send(token);
+                });
+            }).catch(err => res.status(500).send());
         } else {
             res.status(409).send('Invalid type');
         }
@@ -49,6 +73,19 @@ exports.config = function (app, SECRET) {
                     }
                 }).catch(err => res.status(409).send(JSON.stringify(err)))
             }).catch(err => res.status(404).send(err));
+        } else if (req.query.type === 'endomondo') {
+            endomondo.getAccount(req.query.authToken).then(account => {
+                console.log('account', account)
+                return model.User.findOne({'endomondo.id': account.id}).then(user => {
+                    if (user) {
+                        let token = createJWT(user);
+                        token.user = user;
+                        res.send(token);
+                    } else {
+                        res.status(404).send('user not found');
+                    }
+                }).catch(err => res.status(409).send(JSON.stringify(err)))
+            }).catch(err => res.status(404).send(err));
         } else {
             res.status(409).send('Invalid type');
         }
@@ -56,7 +93,13 @@ exports.config = function (app, SECRET) {
 
     app.get(`/api/users/me`, (req, res, next) => {
         model.User.findById(req.user.sub)
-            .then(me => res.send(me))
+            .then(me => {
+                if (me) {
+                    res.send(me);
+                } else {
+                    res.status(404).send();
+                }
+            })
             .catch(err => next(err));
     });
 

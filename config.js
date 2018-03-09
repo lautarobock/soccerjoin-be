@@ -7,6 +7,7 @@ exports.configure = function (app) {
     secure(app);
     require('./routes/users').config(app, SECRET);
     require('./routes/matches').config(app);
+    require('./routes/endomondo').config(app);
     app.get('/api/test', (req, res, next) => {
         res.send({ text: 'Hola como va' });
     });
@@ -24,6 +25,7 @@ function secure(app) {
             '/api/users/token',
             '/api/test',
             /\/public\/.*/,
+            /\/api\/endomondo\/.*/,
         ]
     }));
 }
